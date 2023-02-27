@@ -1,6 +1,3 @@
-#include "Arduino.h"
-
-
 int buzzerPin = 3;
 
 void setup(){
