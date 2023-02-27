@@ -1,5 +1,0 @@
-/Users/Evens/1_StudioProjects/EASV.4thSemester/EASV.4thSemester.IoT/4.ExamProject/EASV_C21_4thSemester_IoT_SmartyPants_SecurityEquipments/3.ArduinoProject/cmake-build-debug/CMakeFiles/Production.dir
-/Users/Evens/1_StudioProjects/EASV.4thSemester/EASV.4thSemester.IoT/4.ExamProject/EASV_C21_4thSemester_IoT_SmartyPants_SecurityEquipments/3.ArduinoProject/cmake-build-debug/CMakeFiles/Debug.dir
-/Users/Evens/1_StudioProjects/EASV.4thSemester/EASV.4thSemester.IoT/4.ExamProject/EASV_C21_4thSemester_IoT_SmartyPants_SecurityEquipments/3.ArduinoProject/cmake-build-debug/CMakeFiles/Z_DUMMY_TARGET.dir
-/Users/Evens/1_StudioProjects/EASV.4thSemester/EASV.4thSemester.IoT/4.ExamProject/EASV_C21_4thSemester_IoT_SmartyPants_SecurityEquipments/3.ArduinoProject/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/Evens/1_StudioProjects/EASV.4thSemester/EASV.4thSemester.IoT/4.ExamProject/EASV_C21_4thSemester_IoT_SmartyPants_SecurityEquipments/3.ArduinoProject/cmake-build-debug/CMakeFiles/rebuild_cache.dir
