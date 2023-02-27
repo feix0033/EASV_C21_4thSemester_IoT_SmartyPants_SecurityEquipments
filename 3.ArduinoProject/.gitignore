@@ -418,3 +418,4 @@ API/appsettings.json
 /.pio/
 /cmake-build-debug/
 /cmake-build-esp32dev/
+/cmake-build-debug/
