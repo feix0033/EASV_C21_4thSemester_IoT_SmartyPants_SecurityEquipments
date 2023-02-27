@@ -14,7 +14,7 @@ Under this directory we use LaTex syntax and markdown syntax.
 ### LaTex
 
 #### Installation
-1. You can download the MiKTeX from [miktex](miktex.org) or following the LaTex official web page. [Getting LaTeX](latex-project.org/get/)
+1. (maybe not neccery)You can download the MiKTeX from [miktex](miktex.org) or following the LaTex official web page. [Getting LaTeX](latex-project.org/get/)
 2. Use the idea Plugins market to install TeXiFy IDEA. After installation, you can create a Latex file and edit them.
 3. Use the idea Plugins market to install PDFViewer for view the pdf file under the idea. 
 
