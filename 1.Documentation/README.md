@@ -29,3 +29,7 @@ from overleaf.
 ### Markdown
 
 #### Installation
+1. Use idea Plugins market to install MarkDown
+
+#### Usage
+https://www.markdownguide.org/cheat-sheet/
