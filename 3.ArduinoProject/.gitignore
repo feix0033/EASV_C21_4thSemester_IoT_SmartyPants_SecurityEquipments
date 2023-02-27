@@ -415,3 +415,6 @@ ASALocalRun/
 .localhistory/
 API/appsettings.json
 API/appsettings.json
+/.pio/
+/cmake-build-debug/
+/cmake-build-esp32dev/

@@ -1,6 +1,0 @@
-# ninja log v5
-0	10516	0	/Users/Evens/1_StudioProjects/EASV.4thSemester/EASV.4thSemester.IoT/4.ExamProject/EASV_C21_4thSemester_IoT_SmartyPants_SecurityEquipments/3.ArduinoProject/cmake-build-esp32dev/CMakeFiles/Debug	8ea2c44ee19ffbdc
-0	10516	0	CMakeFiles/Debug	8ea2c44ee19ffbdc
-22	269	1677489996761516542	build.ninja	e0be10a5d2c4871f
-0	6259	0	CMakeFiles/Production	fd95f77b6b505952
-0	6259	0	/Users/Evens/1_StudioProjects/EASV.4thSemester/EASV.4thSemester.IoT/4.ExamProject/EASV_C21_4thSemester_IoT_SmartyPants_SecurityEquipments/3.ArduinoProject/cmake-build-esp32dev/CMakeFiles/Production	fd95f77b6b505952
