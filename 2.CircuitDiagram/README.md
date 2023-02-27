@@ -5,21 +5,21 @@ This is the circuit design directory
 
 
 sundfounder passive buzzer
-https://learn.sunfounder.com/lesson-12-buzzer/
+https://learn.sunfounder.com/lesson-12-buzzer/  
 ![img.png](pic/img.png)
 
 sunfounder sound sensor
-https://learn.sunfounder.com/lesson-27-sound-sensor/
+https://learn.sunfounder.com/lesson-27-sound-sensor/  
 ![img.png](pic/img2.png)
 
 
 hw416b pir sensor
-https://www.taydaelectronics.com/datasheets/files/A-4432.pdf
+https://www.taydaelectronics.com/datasheets/files/A-4432.pdf  
 ![img.png](pic/img3.png)
 
 
 hw-dy02 DC transformer module
-https://www.thingiverse.com/thing:3346074
+https://www.thingiverse.com/thing:3346074  
 
 
 MAX9814 Electret Microphone Amplifier Board -  
