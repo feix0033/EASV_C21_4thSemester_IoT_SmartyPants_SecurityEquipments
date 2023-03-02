@@ -1,7 +1,30 @@
 This is the circuit design directory
 
-#### ESP32 cam
+## ESP32 cam
+
+#### How to connect 
+
+1. set up cam on breadbord. make sure the reset button can be reach.
+2. connect red line to 5V pin on cam
+3. connect black line to GND pin
+4. white RXwire to TXD pin labeled UOT
+5. Green TXwire to RXD pin to UOR
+6. into boot mode : 1 jump wire from IO0 to GND
+7. make sure following info is correct
+
+**this info should not same as what we just use. so we need search** 
+
+![img.png](pic/caminfo.png)
+
+8. select huge app
+
+![img.png](pic/hugeApp.png)
+
+
+
 ![ESP32-Cam-1.png](pic%2FESP32-Cam-1.png)
+
+
 
 
 sundfounder passive buzzer
