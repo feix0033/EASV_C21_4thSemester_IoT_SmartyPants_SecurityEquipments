@@ -1,10 +1,28 @@
+This is the project file for flash in to the esp32. 
+
+# the componentTest 
+
+[componentTest](componentTest)
+
+which contain the Arduino file to test all the component in this project will working correctly. 
+
+Including: 
+
+[buzzerTest](componentTest%2FbuzzerTest)
+
+[ledTest](componentTest%2FledTest)
+
+[pirSensorTest](componentTest%2FpirSensorTest)
+
+[soundSensorTest](componentTest%2FsoundSensorTest)
+
+[amplifierTest](componentTest%2FamplifierTest)
+
+[espCamTest](componentTest%2FespCamTest)
 
 
+# The project file
 
+This will contain the sketch for this project
 
-## install platformio
-
-1. install platformio clion
-   installation tutorial : https://docs.platformio.org/en/stable/integration/ide/pioide.html#platformio-for-clion-experimental
-      https://docs.platformio.org/en/stable/core/installation/methods/installer-script.html
-2. install plugins platformio
+[projectArduino.ino](projectArduino.ino)
