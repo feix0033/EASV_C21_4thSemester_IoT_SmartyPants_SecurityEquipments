@@ -16,8 +16,6 @@ Including:
 
 [soundSensorTest](componentTest%2FsoundSensorTest)
 
-[amplifierTest](componentTest%2FamplifierTest)
-
 [espCamTest](componentTest%2FespCamTest)
 
 

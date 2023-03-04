@@ -1,8 +1,9 @@
 #include "Arduino.h"
+#include "../projectArduino.ino"
 
 
 int buzzerPin = 3;
-bool flag = false;
+flag = false;
 
 void setup(){
 //    movement sensor
@@ -12,9 +13,9 @@ void setup(){
 
 void loop(){
     /*
-     * if the sensor have a sense. the the flag will be ture. and then the carmar will be turn on
-     * and the led will blinking
-     * and the buzzer will be make noize.
+     * if the sensor have a sense. then the flag will be ture. and then the camera will be turned on
+     * and the LED will blink
+     * and the buzzer will be make noise.
      */
     buzzer(flag);
 
