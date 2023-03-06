@@ -34,8 +34,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char* ssid = "FeiSIphone";
-const char* password = "mrkwpd7889";
+const char* ssid = "12345678";
+const char* password = "12345678";
 
 void startCameraServer();
 
