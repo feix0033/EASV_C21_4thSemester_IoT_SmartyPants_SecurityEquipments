@@ -24,3 +24,7 @@ Including:
 This will contain the sketch for this project
 
 [projectArduino.ino](projectArduino.ino)
+
+
+# connect between esp32-cam and pirmotion
+https://www.youtube.com/watch?v=Uw2hWbfRRpM&t=7s
