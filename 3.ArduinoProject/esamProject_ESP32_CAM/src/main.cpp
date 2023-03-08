@@ -2,33 +2,8 @@
 #include <WiFi.h>
 #include "Arduino.h"
 
-//
-// WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
-//            Ensure ESP32 Wrover Module or other board with PSRAM is selected
-//            Partial images will be transmitted if image exceeds buffer size
-//
-//            You must select partition scheme from the board menu that has at least 3MB APP space.
-//            Face Recognition is DISABLED for ESP32 and ESP32-S2, because it takes up from 15
-//            seconds to process single frame. Face Detection is ENABLED if PSRAM is enabled as well
 
-// ===================
-// Select camera model
-// ===================
-//#define CAMERA_MODEL_WROVER_KIT // Has PSRAM
-//#define CAMERA_MODEL_ESP_EYE // Has PSRAM
-//#define CAMERA_MODEL_ESP32S3_EYE // Has PSRAM
-//#define CAMERA_MODEL_M5STACK_PSRAM // Has PSRAM
-//#define CAMERA_MODEL_M5STACK_V2_PSRAM // M5Camera version B Has PSRAM
-//#define CAMERA_MODEL_M5STACK_WIDE // Has PSRAM
-//#define CAMERA_MODEL_M5STACK_ESP32CAM // No PSRAM
-//#define CAMERA_MODEL_M5STACK_UNITCAM // No PSRAM
 #define CAMERA_MODEL_AI_THINKER // Has PSRAM
-//#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
-// ** Espressif Internal Boards **
-//#define CAMERA_MODEL_ESP32_CAM_BOARD
-//#define CAMERA_MODEL_ESP32S2_CAM_BOARD
-//#define CAMERA_MODEL_ESP32S3_CAM_LCD
-
 #include "camera_pins.h"
 
 // ===========================
@@ -37,13 +12,37 @@
 const char* ssid = "12345678";
 const char* password = "12345678";
 
-void startCameraServer();
+void ledBlinkingFast(){
+    digitalWrite(13,HIGH);
+    delay(500);
+    digitalWrite(13,LOW);
+    delay(500);
+}
 
-void setup() {
-    Serial.begin(115200);
-    Serial.setDebugOutput(true);
-    Serial.println();
+void ledBlinkingSlow(){
+    digitalWrite(13,HIGH);
+    delay(1000);
+    digitalWrite(13,LOW);
+    delay(1000);
+}
 
+void wifiConnect(){
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+    WiFi.setSleep(false);
+    Serial.println("Start to connect to wifi ..");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+        ledBlinkingFast();
+    }
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println(WiFi.localIP());
+}
+
+void cameraInitProcess() {
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;
     config.ledc_timer = LEDC_TIMER_0;
@@ -124,22 +123,31 @@ void setup() {
 #if defined(CAMERA_MODEL_ESP32S3_EYE)
     s->set_vflip(s, 1);
 #endif
+}
 
-    WiFi.begin(ssid, password);
-    WiFi.setSleep(false);
+void startCameraServer();
 
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
+void setup() {
+    Serial.begin(115200);
+    Serial.setDebugOutput(true);
+    Serial.println();
+
+    cameraInitProcess();
+
+    wifiConnect();
+
+    if (WiFi.status() == WL_CONNECTED){
+        Serial.println("Start camera service .. ");
+        startCameraServer();
+        Serial.print("Camera Ready! Use 'http://");
+        Serial.print(WiFi.localIP());
+        Serial.println("' to connect");
+    } else {
+        Serial.println("Waiting for WiFi .. ");
     }
-    Serial.println("");
-    Serial.println("WiFi connected");
 
-    startCameraServer();
 
-    Serial.print("Camera Ready! Use 'http://");
-    Serial.print(WiFi.localIP());
-    Serial.println("' to connect");
+
 }
 
 void loop() {
