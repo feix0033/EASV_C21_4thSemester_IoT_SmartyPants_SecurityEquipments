@@ -7,6 +7,8 @@
 #include "../.pio/libdeps/esp32cam/Blynk/src/Blynk/BlynkTimer.h"
 #include "../.pio/libdeps/esp32cam/Blynk/src/BlynkSimpleEsp32.h"
 #include "../.pio/libdeps/esp32cam/Blynk/src/Blynk/BlynkHandlers.h"
+#include "../.pio/libdeps/esp32cam/PubSubClient/src/PubSubClient.h"
+
 
 #define BLYNK_TEMPLATE_ID "TMPLkv9OkR1o"
 #define BLYNK_TEMPLATE_NAME "Quickstart Template"
@@ -18,8 +20,12 @@
 #include "camera_pins.h"
 
 // Wi-Fi ssid and password
-const char* ssid = "AirTies_Air4960_8HK7";
-const char* pass = "mrkwpd7889";
+const char* ssid = "Evensnachi";
+const char* pass = "12345678";
+const char* mqttService = "mqtt.flespi.io";
+
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient);
 
 BlynkTimer timer;
 int v3Value;
@@ -124,19 +130,42 @@ void cameraInitProcess() {
 
 }
 
+void connectMQTTServer() {
+//    String clientId = "esp32-Sensor-" + WiFi.macAddress();
+    if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
+        Serial.println("MQTT Service connected!");
+        Serial.println("Server address: ");
+        Serial.println(mqttService);
+    }else{
+        Serial.println("MQTT server connect fail.. ");
+        Serial.println("Client state: ");
+        Serial.println(mqttClient.state());
+        delay(3000);
+    }
+}
+
 void startCameraServer();
 
-void cameraStream(String local_IP){
-    Blynk.setProperty(V6, "urls", local_IP);
+
+void pubMqttSensorValueMsg() {
+
+    String topicSensorValue = "esp32CamLink";
+    char publishTopic[topicSensorValue.length() + 1];
+    strcpy(publishTopic, topicSensorValue.c_str());
+
+    String messageSensorValue = "cam: " + WiFi.localIP();
+    char publishMsg[messageSensorValue.length() + 1];
+    strcpy(publishMsg, messageSensorValue.c_str());
+
+    if(mqttClient.publish(publishTopic,publishMsg)){
+        Serial.println("Topic: " + String(publishTopic));
+        Serial.println("Message: " + String(publishMsg));
+    }else{
+        Serial.println("Publish Failed!");
+    }
 }
 
-BLYNK_CONNECTED(){
-    Blynk.syncVirtual(V3);
-}
 
-BLYNK_WRITE(V3){
-    v3Value = param.asInt();
-}
 
 void setup() {
     Serial.begin(115200);
@@ -149,18 +178,23 @@ void setup() {
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println("Start camera service .. ");
 
-        Serial.println("get the V3 value = " + v3Value);
-
-
         // if ( ifttt received meassge) {
         startCameraServer();
+        mqttClient.setServer(mqttService,1883);
+        connectMQTTServer();
+
         //}
         // if ( trun off massage){
         Serial.print("Camera Ready! Use 'http://");
         Serial.print(WiFi.localIP());
         Serial.println("' to connect");
 
-        cameraStream("http://" + WiFi.localIP());
+        if(mqttClient.connected()){
+            pubMqttSensorValueMsg();
+        }else{
+            connectMQTTServer();
+        }
+
 
     } else {
         Serial.println("Waiting for WiFi .. ");
@@ -172,6 +206,12 @@ void setup() {
 }
 
 void loop() {
+    if(mqttClient.connected()){
+        mqttClient.loop();
+    }else{
+        connectMQTTServer();
+    }
+
     Blynk.run();
     timer.run();
 //    delay(10000);
