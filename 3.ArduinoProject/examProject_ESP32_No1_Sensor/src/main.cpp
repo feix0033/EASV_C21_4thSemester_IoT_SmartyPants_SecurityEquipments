@@ -105,7 +105,6 @@ void sendSensor(){
 
     if(mqttClient.connected()){
         pubMqttSensorValueMsg();
-
         if(soundValue >= 2000 || pirValue == 1){
             pubMqttTriggerMsg(1);
         }
