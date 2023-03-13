@@ -76,6 +76,24 @@ void pubMqttSensorValueMsg() {
     }
 }
 
+void pubMqttTriggerMsg(int trigger) {
+
+    String topicSensorValue = "esp32SensorTrigger";
+    char publishTopic[topicSensorValue.length() + 1];
+    strcpy(publishTopic, topicSensorValue.c_str());
+
+    String messageSensorValue = String(trigger);
+    char publishMsg[messageSensorValue.length() + 1];
+    strcpy(publishMsg, messageSensorValue.c_str());
+
+    if(mqttClient.publish(publishTopic,publishMsg)){
+        Serial.println("Topic: " + String(publishTopic));
+        Serial.println("Message: " + String(publishMsg));
+    }else{
+        Serial.println("Publish Failed!");
+    }
+}
+
 void sendSensor(){
     pirValue = digitalRead(PIRPIN);
     soundValue = analogRead(SOUNDPIN);
@@ -86,8 +104,10 @@ void sendSensor(){
     Blynk.virtualWrite(V4,pirValue);
 
     if(mqttClient.connected()){
+        pubMqttSensorValueMsg();
+
         if(soundValue >= 2000 || pirValue == 1){
-            pubMqttSensorValueMsg();
+            pubMqttTriggerMsg(1);
         }
     }
 

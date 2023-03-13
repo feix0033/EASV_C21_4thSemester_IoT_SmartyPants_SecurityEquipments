@@ -130,12 +130,28 @@ void cameraInitProcess() {
 
 }
 
+void subscribeTopic() {
+    String topicString = "esp32SensorTrigger";
+    char subTopic[topicString.length() + 1];
+    strcpy(subTopic,topicString.c_str());
+
+    if(mqttClient.subscribe(subTopic)){
+        Serial.println("Subscrib Topic: ");
+        Serial.println(subTopic);
+    }else{
+        Serial.println("Sbuscribe Fail..");
+    }
+
+
+}
+
 void connectMQTTServer() {
-//    String clientId = "esp32-Sensor-" + WiFi.macAddress();
+
     if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
         Serial.println("MQTT Service connected!");
         Serial.println("Server address: ");
         Serial.println(mqttService);
+        subscribeTopic();
     }else{
         Serial.println("MQTT server connect fail.. ");
         Serial.println("Client state: ");
@@ -166,6 +182,27 @@ void pubMqttCamIpMsg() {
 }
 
 
+void receiveCallback(char* topic, byte* payload, unsigned int length) {
+    Serial.print("Message Received [");
+    Serial.print(topic);
+    Serial.print("]");
+
+    for (int i = 0; i < length; i++) {
+        Serial.println((char) payload[i]);
+    }
+    Serial.println("");
+    Serial.print("Message length(Bytes): ");
+    Serial.println(length);
+
+    if((char) payload[0] == 1){
+        Serial.println("Start camera server");
+        startCameraServer();
+
+        Serial.print("Camera Ready! Use 'http://");
+        Serial.print(WiFi.localIP());
+        Serial.println("' to connect");
+    }
+}
 
 void setup() {
     Serial.begin(115200);
@@ -178,24 +215,15 @@ void setup() {
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println("Start camera service .. ");
 
-        // if ( ifttt received meassge) {
-        startCameraServer();
         mqttClient.setServer(mqttService,1883);
+        mqttClient.setCallback(receiveCallback);
         connectMQTTServer();
-
-        //}
-        // if ( trun off massage){
-        Serial.print("Camera Ready! Use 'http://");
-        Serial.print(WiFi.localIP());
-        Serial.println("' to connect");
 
         if(mqttClient.connected()){
             pubMqttCamIpMsg();
         }else{
             connectMQTTServer();
         }
-
-
     } else {
         Serial.println("Waiting for WiFi .. ");
     }
