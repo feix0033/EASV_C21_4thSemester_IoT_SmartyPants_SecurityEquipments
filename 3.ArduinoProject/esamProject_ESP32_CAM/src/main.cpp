@@ -1,41 +1,39 @@
 #include "esp_camera.h"
-#include <WiFi.h>
 #include "Arduino.h"
+#include <WiFi.h>
+#include "WiFiClient.h"
 
+
+#include "../.pio/libdeps/esp32cam/Blynk/src/Blynk/BlynkTimer.h"
+#include "../.pio/libdeps/esp32cam/Blynk/src/BlynkSimpleEsp32.h"
+#include "../.pio/libdeps/esp32cam/Blynk/src/Blynk/BlynkHandlers.h"
+
+#define BLYNK_TEMPLATE_ID "TMPLkv9OkR1o"
+#define BLYNK_TEMPLATE_NAME "Quickstart Template"
+#define BLYNK_AUTH_TOKEN "U-QhTHFEP2aOvhuPmLMQrR2IrBRZoV24"
+
+#define BLYNK_PRINT Serial
 
 #define CAMERA_MODEL_AI_THINKER // Has PSRAM
 #include "camera_pins.h"
 
-// ===========================
-// Enter your WiFi credentials
-// ===========================
-const char* ssid = "12345678";
-const char* password = "12345678";
+// Wi-Fi ssid and password
+const char* ssid = "AirTies_Air4960_8HK7";
+const char* pass = "mrkwpd7889";
 
-void ledBlinkingFast(){
-    digitalWrite(13,HIGH);
-    delay(500);
-    digitalWrite(13,LOW);
-    delay(500);
-}
+BlynkTimer timer;
+int v3Value;
 
-void ledBlinkingSlow(){
-    digitalWrite(13,HIGH);
-    delay(1000);
-    digitalWrite(13,LOW);
-    delay(1000);
-}
 
 void wifiConnect(){
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
+    WiFi.begin(ssid, pass);
     WiFi.setSleep(false);
     Serial.println("Start to connect to wifi ..");
 
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
-        ledBlinkingFast();
     }
     Serial.println("");
     Serial.println("WiFi connected");
@@ -123,34 +121,58 @@ void cameraInitProcess() {
 #if defined(CAMERA_MODEL_ESP32S3_EYE)
     s->set_vflip(s, 1);
 #endif
+
 }
 
 void startCameraServer();
 
+void cameraStream(String local_IP){
+    Blynk.setProperty(V6, "urls", local_IP);
+}
+
+BLYNK_CONNECTED(){
+    Blynk.syncVirtual(V3);
+}
+
+BLYNK_WRITE(V3){
+    v3Value = param.asInt();
+}
+
 void setup() {
     Serial.begin(115200);
     Serial.setDebugOutput(true);
-    Serial.println();
 
     cameraInitProcess();
-
     wifiConnect();
 
-    if (WiFi.status() == WL_CONNECTED){
+
+    if (WiFi.status() == WL_CONNECTED) {
         Serial.println("Start camera service .. ");
+
+        Serial.println("get the V3 value = " + v3Value);
+
+
+        // if ( ifttt received meassge) {
         startCameraServer();
+        //}
+        // if ( trun off massage){
         Serial.print("Camera Ready! Use 'http://");
         Serial.print(WiFi.localIP());
         Serial.println("' to connect");
+
+        cameraStream("http://" + WiFi.localIP());
+
     } else {
         Serial.println("Waiting for WiFi .. ");
     }
 
+    Blynk.begin(BLYNK_AUTH_TOKEN,ssid,pass);
 
 
 }
 
 void loop() {
-    // Do nothing. Everything is done in another task by the web server
-    delay(10000);
+    Blynk.run();
+    timer.run();
+//    delay(10000);
 }

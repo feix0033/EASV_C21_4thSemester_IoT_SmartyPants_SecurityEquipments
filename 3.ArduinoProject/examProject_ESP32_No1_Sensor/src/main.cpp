@@ -1,176 +1,142 @@
 #include <Arduino.h>
 #include "WiFi.h"
+#include "../.pio/libdeps/esp32dev/Blynk/src/Blynk/BlynkTimer.h"
+#include "../.pio/libdeps/esp32dev/Blynk/src/BlynkSimpleEsp32.h"
+#include "../.pio/libdeps/esp32dev/Blynk/src/Blynk/BlynkHandlers.h"
 #include "../.pio/libdeps/esp32dev/PubSubClient/src/PubSubClient.h"
 
 
-int ledPin = 2;
-int pirPin = 12;
-int soundPin = A0;
+#define BLYNK_TEMPLATE_ID "TMPLkv9OkR1o"
+#define BLYNK_TEMPLATE_NAME "Quickstart Template"
+#define BLYNK_AUTH_TOKEN "8MHFg1pmVwHBL8_RzEspb7Nl_pCF_Oml"
 
-char triggerForCam[1];
-
+#define BLYNK_PRINT SERIAL
+#define LEDPIN 2
+#define PIRPIN 12
+#define SOUNDPIN A0
 
 int pirValue = LOW;
-uint16_t soundValue;
+uint16_t soundValue = 0;
 
 // Wi-Fi ssid and password
-const char* ssid = "12345678";
-const char* password = "12345678";
+const char* ssid = "Evensnachi";
+const char* pass = "12345678";
+const char* mqttService = "mqtt.flespi.io";
 
-// Add your MQTT Broker IP address, example:
-//const char* mqtt_server = "192.168.1.144";
-const char* mqtt_server = "YOUR_MQTT_BROKER_IP_ADDRESS";
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient);
 
-WiFiClient espClient;
-PubSubClient client(espClient);
-long lastMsg = 0;
-char msg[50];
-int value = 0;
-
-void ledBlinkingFast(){
-    digitalWrite(ledPin,HIGH);
-    delay(500);
-    digitalWrite(ledPin,LOW);
-    delay(500);
-}
-
-void ledBlinkingSlow(){
-    digitalWrite(ledPin,HIGH);
-    delay(1000);
-    digitalWrite(ledPin,LOW);
-    delay(1000);
-}
+BlynkTimer timer;
+int timerID;
 
 void wifiConnect(){
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
+    WiFi.begin(ssid, pass);
     WiFi.setSleep(false);
     Serial.println("Start to connect to wifi ..");
 
     while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
         Serial.print(".");
-        ledBlinkingFast();
     }
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.println(WiFi.localIP());
 }
 
-void callback(char* topic, byte* message, unsigned int length) {
-    Serial.print("Message arrived on topic: ");
-    Serial.print(topic);
-    Serial.print(". Message: ");
-    String messageTemp;
-
-    for (int i = 0; i < length; i++) {
-        Serial.print((char)message[i]);
-        messageTemp += (char)message[i];
-    }
-    Serial.println();
-
-    // Feel free to add more if statements to control more GPIOs with MQTT
-
-    // If a message is received on the topic esp32/output, you check if the message is either "on" or "off".
-    // Changes the output state according to the message
-    if (String(topic) == "esp32/output") {
-        Serial.print("Changing output to ");
-        if(messageTemp == "on"){
-            Serial.println("on");
-            digitalWrite(ledPin, HIGH);
-        }
-        else if(messageTemp == "off"){
-            Serial.println("off");
-            digitalWrite(ledPin, LOW);
-        }
+void connectMQTTServer() {
+//    String clientId = "esp32-Sensor-" + WiFi.macAddress();
+    if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
+        Serial.println("MQTT Service connected!");
+        Serial.println("Server address: ");
+        Serial.println(mqttService);
+    }else{
+        Serial.println("MQTT server connect fail.. ");
+        Serial.println("Client state: ");
+        Serial.println(mqttClient.state());
+        delay(3000);
     }
 }
 
+void pubMqttSensorValueMsg() {
+
+    String topicSensorValue = "esp32SensorValue";
+    char publishTopic[topicSensorValue.length() + 1];
+    strcpy(publishTopic, topicSensorValue.c_str());
+
+    String messageSensorValue = "sound: " + String(soundValue) + "; pir: " + String(pirValue);
+    char publishMsg[messageSensorValue.length() + 1];
+    strcpy(publishMsg, messageSensorValue.c_str());
+
+    if(mqttClient.publish(publishTopic,publishMsg)){
+        Serial.println("Topic: " + String(publishTopic));
+        Serial.println("Message: " + String(publishMsg));
+    }else{
+        Serial.println("Publish Failed!");
+    }
+}
+
+void sendSensor(){
+    pirValue = digitalRead(PIRPIN);
+    soundValue = analogRead(SOUNDPIN);
+    Serial.println(soundValue);
+    Serial.println(pirValue);
+
+    Blynk.virtualWrite(V3,soundValue);
+    Blynk.virtualWrite(V4,pirValue);
+
+    if(mqttClient.connected()){
+        if(soundValue >= 2000 || pirValue == 1){
+            pubMqttSensorValueMsg();
+        }
+    }
+
+}
+
+
+BLYNK_WRITE(V0){
+    int value = param.asInt();
+    Serial.println(value);
+
+    if(value == 1){
+        digitalWrite(LEDPIN,HIGH);
+        Serial.println("led on! ");
+        timerID = timer.setInterval(200L, sendSensor);
+        timer.enable(timerID);
+
+    } else {
+        digitalWrite(LEDPIN, LOW);
+        timer.disable(timerID);
+    }
+};
 
 
 void setup() {
     Serial.begin(115200);
 
-    pinMode(ledPin,OUTPUT);
-    digitalWrite(ledPin,LOW);
+    pinMode(LEDPIN,OUTPUT);
+    digitalWrite(LEDPIN,LOW);
+    
 
-    // Wifi Setup
     wifiConnect();
-    Serial.println("Start to sense ...");
-    client.setServer(mqtt_server, 1883);
-    client.setCallback(callback);
+
+    Blynk.begin(BLYNK_AUTH_TOKEN,ssid,pass);
+    mqttClient.setServer(mqttService,1883);
+
+    connectMQTTServer();
+
 
 
 }
 
-
-void reconnect() {
-    // Loop until we're reconnected
-    while (!client.connected()) {
-        Serial.print("Attempting MQTT connection...");
-        // Attempt to connect
-        if (client.connect("ESP8266Client")) {
-            Serial.println("connected");
-            // Subscribe
-            client.subscribe("esp32/output");
-        } else {
-            Serial.print("failed, rc=");
-            Serial.print(client.state());
-            Serial.println(" try again in 5 seconds");
-            // Wait 5 seconds before retrying
-            delay(5000);
-        }
-    }
-}
 
 void loop() {
-    pirValue = digitalRead(pirPin);
-    soundValue = analogRead(soundPin);
-    Serial.println(soundValue);
-    Serial.println(pirValue);
-    delay(100);
-
-    if (soundValue >= 2000) {
-        Serial.println("We sense a sound.. ");
+    if(mqttClient.connected()){
+        mqttClient.loop();
+    }else{
+        connectMQTTServer();
     }
 
-    if(pirValue == HIGH){
-        Serial.println("We sense a move..");
-        digitalWrite(ledPin,HIGH);
-
-    } else {
-        digitalWrite(ledPin, LOW);
-    }
-
-    if (!client.connected()) {
-        reconnect();
-    }
-    client.loop();
-
-    long now = millis();
-    if (now - lastMsg > 5000) {
-        lastMsg = now;
-
-        // Temperature in Celsius
-//        temperature = bme.readTemperature();
-        // Uncomment the next line to set temperature in Fahrenheit
-        // (and comment the previous temperature line)
-        //temperature = 1.8 * bme.readTemperature() + 32; // Temperature in Fahrenheit
-
-        // Convert the value to a char array
-//        char tempString[8];
-//        dtostrf(temperature, 1, 2, tempString);
-//        Serial.print("Temperature: ");
-//        Serial.println(tempString);
-//        client.publish("esp32/temperature", tempString);
-        client.publish("esp32/cam",triggerForCam);
-//        humidity = bme.readHumidity();
-
-        // Convert the value to a char array
-//        char humString[8];
-//        dtostrf(humidity, 1, 2, humString);
-//        Serial.print("Humidity: ");
-//        Serial.println(humString);
-//        client.publish("esp32/humidity", humString);
-    }
-
+    Blynk.run();
+    timer.run();
 }
