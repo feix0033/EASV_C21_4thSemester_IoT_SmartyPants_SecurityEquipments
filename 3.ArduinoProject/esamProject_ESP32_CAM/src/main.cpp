@@ -147,7 +147,7 @@ void connectMQTTServer() {
 void startCameraServer();
 
 
-void pubMqttSensorValueMsg() {
+void pubMqttCamIpMsg() {
 
     String topicSensorValue = "esp32CamLink";
     char publishTopic[topicSensorValue.length() + 1];
@@ -190,7 +190,7 @@ void setup() {
         Serial.println("' to connect");
 
         if(mqttClient.connected()){
-            pubMqttSensorValueMsg();
+            pubMqttCamIpMsg();
         }else{
             connectMQTTServer();
         }

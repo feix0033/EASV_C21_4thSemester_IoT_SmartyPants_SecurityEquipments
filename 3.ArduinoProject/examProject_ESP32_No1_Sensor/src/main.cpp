@@ -116,16 +116,13 @@ void setup() {
 
     pinMode(LEDPIN,OUTPUT);
     digitalWrite(LEDPIN,LOW);
-    
+
 
     wifiConnect();
-
     Blynk.begin(BLYNK_AUTH_TOKEN,ssid,pass);
+
     mqttClient.setServer(mqttService,1883);
-
     connectMQTTServer();
-
-
 
 }
 
