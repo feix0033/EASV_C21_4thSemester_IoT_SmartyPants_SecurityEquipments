@@ -11,27 +11,100 @@
 
 % Packages
 \usepackage{amsmath}
+\usepackage{graphicx}
 
 
 % Document
-\begin{document}                    % the ducument start here
+\begin{document}        % the ducument start here
+
 \maketitle
 \tableofcontents
 
-
-\chapter{chapterName}
-
-\section{sectionName}
-
-\subsection{subSectionName}
-
-\subsubsection{subSubSectionName}
+\section{Problem statement}\label{sec:problem-statement}
+% Which problem for a human is it solving and why is it important
 
 
 
 
+\section{Illustration of network architecture}\label{sec:illustration-of-network-architecture}
+% Use draw.io make a architecture, remember to name the protocols and the hardwares.
 
-\bibliography{report}
-    \bibliographystyle{plain}
+
+
+
+\section{Illustration of the hardware setup}\label{sec:illustration-of-the-hardware-setup}
+% Use fritzing or just use circuiTikZ make the circuit layout\pm
+
+    this is the test input 1.
+    So far while specifying the image file name in the \includegraphics command we have omitted file extensions. However, that is not necessary, though it is often useful. If the file extension is omitted, LaTeX will search for any supported image format in that directory, and will search for various extensions in the default order (which can be modified).
+
+    This is useful in switching between development and production environments. In a development environment (when the article/report/book is still in progress), it is desirable to use low-resolution versions of images (typically in .png format) for fast compilation of the preview. In the production environment (when the final version of the article/report/book is produced), it is desirable to include the high-resolution version of the images.
+
+    This is accomplished by
+
+
+    \subsection{full circuit}\label{subsec:full-circuit}
+
+        this is the test input 2.
+        So far while specifying the image file name in the \includegraphics command we have omitted file extensions. However, that is not necessary, though it is often useful. If the file extension is omitted, LaTeX will search for any supported image format in that directory, and will search for various extensions in the default order (which can be modified).
+
+        This is useful in switching between development and production environments. In a development environment (when the article/report/book is still in progress), it is desirable to use low-resolution versions of images (typically in .png format) for fast compilation of the preview. In the production environment (when the final version of the article/report/book is produced), it is desirable to include the high-resolution version of the images.
+
+        This is accomplished by
+
+        \begin{figure}[h]
+            \caption{Full circuit lay out}\label{fig:figure1}
+            \centering
+            \includegraphics[width=0.5\textwidth]{../out/fullCircuitLayOut}
+        \end{figure}
+
+    \subsection{esp32No1 Sensor}\label{subsec:esp32no1-sensor}
+
+        This is the test input 3.
+        So far while specifying the image file name in the \includegraphics command we have omitted file extensions. However, that is not necessary, though it is often useful. If the file extension is omitted, LaTeX will search for any supported image format in that directory, and will search for various extensions in the default order (which can be modified).
+
+        This is useful in switching between development and production environments. In a development environment (when the article/report/book is still in progress), it is desirable to use low-resolution versions of images (typically in .png format) for fast compilation of the preview. In the production environment (when the final version of the article/report/book is produced), it is desirable to include the high-resolution version of the images.
+
+        This is accomplished by
+
+        \begin{figure}[h]
+            \caption{ESP32 no.1 connect to sensors}
+            \centering
+            \includegraphics[width=0.5\textwidth]{../out/fullCircuitLayOut}
+            \label{fig:figure2}
+        \end{figure}
+
+
+    \subsection{esp32No2 Sensor}\label{subsec:esp32no2-sensor}
+
+        So far while specifying the image file name in the \includegraphics command we have omitted file extensions. However, that is not necessary, though it is often useful. If the file extension is omitted, LaTeX will search for any supported image format in that directory, and will search for various extensions in the default order (which can be modified).
+
+        This is useful in switching between development and production environments. In a development environment (when the article/report/book is still in progress), it is desirable to use low-resolution versions of images (typically in .png format) for fast compilation of the preview. In the production environment (when the final version of the article/report/book is produced), it is desirable to include the high-resolution version of the images.
+
+        This is accomplished by
+
+        \begin{figure}[h]
+            \caption{ESP32 no.2 connect to buzzer and LED-display}\label{fig:figure3}
+            \centering
+            \includegraphics[width=0.5\textwidth]{../out/fullCircuitLayOut}
+        \end{figure}
+
+    \subsection{esp32Cam Sensor}\label{subsec:esp32cam-sensor}
+
+        So far while specifying the image file name in the \includegraphics command we have omitted file extensions. However, that is not necessary, though it is often useful. If the file extension is omitted, LaTeX will search for any supported image format in that directory, and will search for various extensions in the default order (which can be modified).
+
+        This is useful in switching between development and production environments. In a development environment (when the article/report/book is still in progress), it is desirable to use low-resolution versions of images (typically in .png format) for fast compilation of the preview. In the production environment (when the final version of the article/report/book is produced), it is desirable to include the high-resolution version of the images.
+
+        This is accomplished by
+
+        \begin{figure}[h]
+            \caption{ESP32 CAM}\label{fig:figure4}
+            \centering
+            \includegraphics[width=0.5\textwidth]{../out/fullCircuitLayOut}
+        \end{figure}
+
+
+    \bibliography{report}
+        \bibliographystyle{plain}
 
 \end{document}

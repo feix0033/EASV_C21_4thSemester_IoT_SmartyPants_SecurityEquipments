@@ -1,0 +1,70 @@
+%! Author = Evens
+%! Date = 20/02/2023
+
+% Preamble
+\documentclass[11pt]{article}
+
+% Packages
+% import the package circuitikz, [siunitx] is working for add label to get more info
+\usepackage{circuitikz}
+
+% Document
+\begin{document}
+    % set the circuiTikZ env
+    % use [scale=2] to zoom the size as 2 times
+    \begin{circuitikz}
+        % draw the element from position (0,0)
+        \draw(0,0)
+
+        % notice:
+        % to[component]
+        % (the position where the component going by x,y)
+        % -- (the end point of component to next, using the line to connect by x,y)
+
+        % draw a battery from (0,0) to (0,4)
+        % that means go up to 4 unit draw
+        to[battery] (0,4)
+
+        % draw an ammeter from (4,0) to (4,4)
+        % use parameter 'l=' to add a label
+        % '<\ampere>' means ampere as unit
+        % '\milli' means milli
+        % '_' after 'l' means under the simble make the label
+        to[ammeter, l_=2<\milli\ampere>] (4,4)
+
+        % add a Capacitor between ammeter and lamp
+        % make a label next to the simble with an arrow useing 'i='
+        % 'o-o' using for add empty dot two side of capacitor
+        to[C, o-o, l=3<\farad>, i= capacitor] (4,0)
+        --( 3.5,0)
+
+        % draw an lamp from (3.5,0) to (0.5,0)
+        % '*-*' using for add dot at to side of lamp
+        % from x=0.5 go down 2cm
+        to[lamp, *-*](0.5,0)
+
+        % make a line to close the circle back to (0,0)
+        -- (0, 0)
+
+        % make a line go down from (0.5,0) to ( 0.5, -2)
+        (0.5,0) -- (0.5,-2)
+
+        % draw a voltmeter
+        % change the component as red by 'color='
+        to[voltmeter, l=3<\kilo\volt>, color=red]
+        % from x=3.5 go up back to 0
+        % auto it will draw a voltmeter from 0.5 to 3.5
+        (3.5,-2) -- (3.5,0)
+
+
+        % add some single componet use '(x,y) node[component] {}'
+        % rember the (x,y) is base the last component position,
+        % which means (0,-2) are from the voltmeter (0.5,-2) go to (0,-3)
+        (-1,-3) node[transformer] {}
+
+        % remember close with a semicolon
+        ;
+
+
+    \end{circuitikz}
+\end{document}
