@@ -28,6 +28,15 @@
 
 \section{Illustration of network architecture}\label{sec:illustration-of-network-architecture}
 % Use draw.io make a architecture, remember to name the protocols and the hardwares.
+    \paragraph{}
+        Following the problem statement, we have to design the architecture base on three different terminal using three ESP32 MCU.
+
+    \paragraph{}
+        The first terminal which connect to the all sensor component will try to get the data.
+        And then when the data value reach to a limit then send a message to MQTT server by Wi-Fi connection, at the
+        same time send the data to "Blynk.console" to show the data.
+    \paragrapg{}
+        The MQTT server will subscrib the topic where
 
 
 
