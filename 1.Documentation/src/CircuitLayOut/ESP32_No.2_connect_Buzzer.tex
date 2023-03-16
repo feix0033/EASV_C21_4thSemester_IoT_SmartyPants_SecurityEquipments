@@ -6,10 +6,36 @@
 
 % Packages
 \usepackage{amsmath}
+\usepackage{circuitikz}
 
 % Document
 \begin{document}
+    \begin{circuitikz}
+
+        \ctikzset{multipoles/dipchip/width = 2}
+        \ctikzset{multipoles/external pins thickness=2}
+        \draw (0,0)
+        node [dipchip, num pins = 12, no topmark, hide numbers, draw only pins={12,11,10}, external pins width=0.2,
+        external pad fraction=6](E){ESP32 No.2};
+
+        \node [left, font=\tiny] at (E.bpin 12) {$3.3V$};
+        \node [left, font=\tiny] at (E.bpin 11) {$D12$};
+        \node [left, font=\tiny] at (E.bpin 10) {$GUN$};
 
 
+        \draw (6,1)
+        node [dipchip, num pins = 6, no topmark, hide numbers, draw only pins={1,2,3}, external pins width=0.2,
+        external pad fraction=6](B){buzzer};
+
+        \node [right, font=\tiny] at (B.bpin 1) {$3.3V$};
+        \node [right, font=\tiny] at (B.bpin 2) {$SIG$};
+        \node [right, font=\tiny] at (B.bpin 1) {$GUN$};
+
+        \draw (E.pin 12) -- ++ to (B.pin 1);
+        \draw (E.pin 11) -- ++ to (B.pin 2);
+        \draw (E.pin 10) -- ++ to (B.pin 3);
+
+
+    \end{circuitikz}
 
 \end{document}
