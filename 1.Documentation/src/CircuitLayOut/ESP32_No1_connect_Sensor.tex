@@ -1,0 +1,56 @@
+%! Author = Evens
+%! Date = 16/03/2023
+
+% Preamble
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{circuitikz}
+
+% Document
+\begin{document}
+    \begin{circuitikz}
+
+    \ctikzset{multipoles/dipchip/width = 2}
+
+    \ctikzset{multipoles/external pins thickness=2}
+    \draw (0,0)
+    node [dipchip, num pins = 6, no topmark, hide numbers, draw only pins={4-6}, external pins width=0.2,
+    external pad fraction=6](P){priSensor};
+
+    \node [left, font=\tiny] at (P.bpin 6) {$3.3V$};
+    \node [left, font=\tiny] at (P.bpin 5) {$SIG$};
+    \node [left, font=\tiny] at (P.bpin 4) {$GUN$};
+
+    \draw (0,-4)
+    node [dipchip, num pins = 6, no topmark, hide numbers, draw only pins={4-6}, external pins width=0.2,
+    external pad fraction=6](S){sound Sensor};
+
+    \node [left, font=\tiny] at (S.bpin 6) {$3.3V$};
+    \node [left, font=\tiny] at (S.bpin 5) {$SIG$};
+    \node [left, font=\tiny] at (S.bpin 4) {$GUN$};
+
+    \draw (8,0)
+    node [dipchip, num pins = 12, no topmark, hide numbers, draw only pins={3,4,12,11}, external pins width=0.2,
+    external pad fraction=6](ESP32){ESP32 No.1};
+
+    \node [left, font=\tiny] at (ESP32.bpin 12) {$3.3V$};
+    \node [right, font=\tiny] at (ESP32.bpin 3) {$D12$};
+    \node [right, font=\tiny] at (ESP32.bpin 4) {$A0$};
+    \node [left, font=\tiny] at (ESP32.bpin 11) {$GUN$};
+
+    \draw (S.pin 6)[thick] -- ++(9,0)[color=red] -- ++(0,4.8) to (ESP32.pin 12);
+    \draw (P.pin 6)[thick] -- ++(0,3)[color=red] -- ++(9,0) -- ++(0,-2.2) to(ESP32.pin 12);
+
+    \draw (S.pin 4)[thick] -- ++(10,0)[color=black] -- ++(0,4.8) to (ESP32.pin 11);
+    \draw (P.pin 4)[thick] -- ++(1,0) -- ++(0,3)[color=black] -- ++(9,0) -- ++(0,-2.2) to(ESP32.pin 11);
+
+    \draw (S.pin 5)[thick] -- ++(4,0)[color=yellow] -- ++(0,3) to (ESP32.pin 4);
+    \draw (P.pin 5)[thick] -- ++(4,0)[color=yellow]  to (ESP32.pin 3);
+
+
+
+    \end{circuitikz}
+
+\end{document}

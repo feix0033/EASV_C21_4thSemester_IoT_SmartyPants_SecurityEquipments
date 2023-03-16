@@ -1,0 +1,48 @@
+%! Author = Evens
+%! Date = 16/03/2023
+
+% Preamble
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{circuitikz}
+
+
+% Document
+\begin{document}
+    \begin{circuitikz}
+    \ctikzset{multipoles/dipchip/width = 2}
+    \ctikzset{multipoles/external pins thickness=2}
+
+    \draw (0,0)
+    node [dipchip, num pins = 8, no topmark, hide numbers, draw only pins={5-8}, external pins width=0.2,
+    external pad fraction=6](C){
+    TypeC Adapter};
+    \node [left, font=\tiny] at (C.bpin 8) {$VCC$};
+    \node [left, font=\tiny] at (C.bpin 7) {$RX0$};
+    \node [left, font=\tiny] at (C.bpin 6) {$TX0$};
+    \node [left, font=\tiny] at (C.bpin 5) {$GUN$};
+
+
+    \draw (8,0)
+    node [dipchip, num pins = 12, no topmark, hide numbers,draw only pins={1,3,4,6,10,9}, external pins width=0.2,
+    external pad
+    fraction=6](CAM){
+    ESP32CAM};
+    \node [right, font=\tiny] at (CAM.bpin 1) {$3.3V$};
+    \node [right, font=\tiny] at (CAM.bpin 3) {$RX0$};
+    \node [right, font=\tiny] at (CAM.bpin 4) {$TX0$};
+    \node [right, font=\tiny] at (CAM.bpin 6) {$GUN$};
+    \node [left, font=\tiny] at (CAM.bpin 10) {$GPIO0$};
+    \node [left, font=\tiny] at (CAM.bpin 9) {$GUN$};
+
+
+    \draw (C.pin 8) -- ++(4,0) to(CAM.pin 1);
+    \draw (C.pin 7) -- ++(4,0) to(CAM.pin 3);
+    \draw (C.pin 6) -- ++(4,0) to(CAM.pin 4);
+    \draw (C.pin 5) -- ++(4,0) to(CAM.pin 6);
+    \draw (CAM.pin 10) -- ++(2,0) -- ++(0,-0.5) -- ++(-2,0) to (CAM.pin 9);
+
+    \end{circuitikz}
+\end{document}
