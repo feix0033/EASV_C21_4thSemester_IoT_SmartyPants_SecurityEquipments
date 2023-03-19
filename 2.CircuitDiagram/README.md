@@ -7,8 +7,8 @@ This is the circuit design directory
 1. set up cam on breadbord. make sure the reset button can be reach.
 2. connect red line to 5V pin on cam
 3. connect black line to GND pin
-4. green RXwire to TXD pin labeled UOT
-5. yellow TXwire to RXD pin to UOR
+4. green RXwire to TXD pin labeled UOR
+5. yellow TXwire to RXD pin to UOT
 6. into boot mode : 1 jump wire from IO0 to GND
 7. make sure following info is correct
 

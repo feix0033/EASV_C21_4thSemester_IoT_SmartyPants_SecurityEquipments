@@ -13,8 +13,8 @@
     \begin{circuitikz}
 
     \ctikzset{multipoles/dipchip/width = 2}
-
     \ctikzset{multipoles/external pins thickness=2}
+
     \draw (0,0)
     node [dipchip, num pins = 6, no topmark, hide numbers, draw only pins={4-6}, external pins width=0.2,
     external pad fraction=6](P){priSensor};
@@ -36,7 +36,7 @@
     external pad fraction=6](ESP32){ESP32 No.1};
 
     \node [left, font=\tiny] at (ESP32.bpin 12) {$3.3V$};
-    \node [right, font=\tiny] at (ESP32.bpin 3) {$D12$};
+    \node [right, font=\tiny] at (ESP32.bpin 3) {$12$};
     \node [right, font=\tiny] at (ESP32.bpin 4) {$A0$};
     \node [left, font=\tiny] at (ESP32.bpin 11) {$GUN$};
 
@@ -48,7 +48,6 @@
 
     \draw (S.pin 5)[thick] -- ++(4,0)[color=yellow] -- ++(0,3) to (ESP32.pin 4);
     \draw (P.pin 5)[thick] -- ++(4,0)[color=yellow]  to (ESP32.pin 3);
-
 
 
     \end{circuitikz}
