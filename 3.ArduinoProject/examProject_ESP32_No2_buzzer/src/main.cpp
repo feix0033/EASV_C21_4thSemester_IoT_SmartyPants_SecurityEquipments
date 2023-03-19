@@ -74,6 +74,7 @@ void receiveCallback(char* topic, byte* payload, unsigned int length) {
         buzzerTone();
         trigger = 1;
         pubMqttBuzzerStatueMsg();
+        Blynk.virtualWrite(V1,1);
     } else {
         tone(BUZZERPIN,0);
         trigger = 0;
@@ -122,6 +123,17 @@ void wifiConnect(){
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.println(WiFi.localIP());
+}
+
+BLYNK_WRITE(V1){
+    int value = param.asInt();
+    Serial.println(value);
+
+    if(value == 0){
+        tune(BUZZERPIN,0);
+        trigger = 0;
+        pubMqttBuzzerStatueMsg();
+    }
 }
 
 void setup() {

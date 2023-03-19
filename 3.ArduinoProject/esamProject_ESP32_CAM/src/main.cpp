@@ -84,10 +84,13 @@ void receiveCallback(char* topic, byte* payload, unsigned int length) {
     if ((char) payload[0] == 1) {
         Serial.println("Start camera server");
         startCameraServer();
+        Blynk.virtualWrite(V2,1);
 
         Serial.print("Camera Ready! Use 'http://");
         Serial.print(WiFi.localIP());
         Serial.println("' to connect");
+
+        Blynk.virtualWrite(V5,WiFi.localIP().toString());
 
         pubMqttCamIpMsg();
         pubMqttCamStatus();
