@@ -29,42 +29,15 @@ PubSubClient mqttClient(wifiClient);
 BlynkTimer timer;
 int timerID;
 
-void wifiConnect(){
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, pass);
-    WiFi.setSleep(false);
-    Serial.println("Start to connect to wifi ..");
+int cameraTrigger = 0;
+int buzzerTrigger = 0;
 
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println(WiFi.localIP());
-}
-
-void connectMQTTServer() {
-//    String clientId = "esp32-Sensor-" + WiFi.macAddress();
-    if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
-        Serial.println("MQTT Service connected!");
-        Serial.println("Server address: ");
-        Serial.println(mqttService);
-    }else{
-        Serial.println("MQTT server connect fail.. ");
-        Serial.println("Client state: ");
-        Serial.println(mqttClient.state());
-        delay(3000);
-    }
-}
-
-void pubMqttSensorValueMsg() {
-
-    String topicSensorValue = "esp32SensorValue";
+void pubMqttBuzzerTriggerMsg(){
+    String topicSensorValue = "buzzerTrigger";
     char publishTopic[topicSensorValue.length() + 1];
     strcpy(publishTopic, topicSensorValue.c_str());
 
-    String messageSensorValue = "sound: " + String(soundValue) + "; pir: " + String(pirValue);
+    String messageSensorValue = String(buzzerTrigger);
     char publishMsg[messageSensorValue.length() + 1];
     strcpy(publishMsg, messageSensorValue.c_str());
 
@@ -76,13 +49,30 @@ void pubMqttSensorValueMsg() {
     }
 }
 
-void pubMqttTriggerMsg(int trigger) {
-
-    String topicSensorValue = "esp32SensorTrigger";
+void pubMqttCameraTriggerMsg(){
+    String topicSensorValue = "cameraTrigger";
     char publishTopic[topicSensorValue.length() + 1];
     strcpy(publishTopic, topicSensorValue.c_str());
 
-    String messageSensorValue = String(trigger);
+    String messageSensorValue = String(cameraTrigger);
+    char publishMsg[messageSensorValue.length() + 1];
+    strcpy(publishMsg, messageSensorValue.c_str());
+
+    if(mqttClient.publish(publishTopic,publishMsg)){
+        Serial.println("Topic: " + String(publishTopic));
+        Serial.println("Message: " + String(publishMsg));
+    }else{
+        Serial.println("Publish Failed!");
+    }
+}
+
+void pubMqttSensorValueMsg() {
+
+    String topicSensorValue = "sensorValue";
+    char publishTopic[topicSensorValue.length() + 1];
+    strcpy(publishTopic, topicSensorValue.c_str());
+
+    String messageSensorValue = "sound: " + String(soundValue) + "; pir: " + String(pirValue);
     char publishMsg[messageSensorValue.length() + 1];
     strcpy(publishMsg, messageSensorValue.c_str());
 
@@ -106,12 +96,42 @@ void sendSensor(){
     if(mqttClient.connected()){
         pubMqttSensorValueMsg();
         if(soundValue >= 2000 || pirValue == 1){
-            pubMqttTriggerMsg(1);
+            buzzerTrigger = 1;
+            cameraTrigger = 1;
+            pubMqttCameraTriggerMsg();
+            pubMqttBuzzerTriggerMsg();
         }
     }
-
 }
 
+void connectMQTTServer() {
+//    String clientId = "esp32-Sensor-" + WiFi.macAddress();
+    if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
+        Serial.println("MQTT Service connected!");
+        Serial.println("Server address: ");
+        Serial.println(mqttService);
+    }else{
+        Serial.println("MQTT server connect fail.. ");
+        Serial.println("Client state: ");
+        Serial.println(mqttClient.state());
+        delay(3000);
+    }
+}
+
+void wifiConnect(){
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, pass);
+    WiFi.setSleep(false);
+    Serial.println("Start to connect to wifi ..");
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println(WiFi.localIP());
+}
 
 BLYNK_WRITE(V0){
     int value = param.asInt();
@@ -122,7 +142,6 @@ BLYNK_WRITE(V0){
         Serial.println("led on! ");
         timerID = timer.setInterval(200L, sendSensor);
         timer.enable(timerID);
-
     } else {
         digitalWrite(LEDPIN, LOW);
         timer.disable(timerID);
@@ -136,12 +155,12 @@ void setup() {
     pinMode(LEDPIN,OUTPUT);
     digitalWrite(LEDPIN,LOW);
 
-
     wifiConnect();
-    Blynk.begin(BLYNK_AUTH_TOKEN,ssid,pass);
 
     mqttClient.setServer(mqttService,1883);
     connectMQTTServer();
+
+    Blynk.begin(BLYNK_AUTH_TOKEN,ssid,pass);
 
 }
 

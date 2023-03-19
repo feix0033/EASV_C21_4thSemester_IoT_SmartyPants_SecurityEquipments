@@ -30,6 +30,97 @@ PubSubClient mqttClient(wifiClient);
 BlynkTimer timer;
 int v3Value;
 
+void pubMqttCamStatus(){
+
+    String topicSensorValue = "cameraStatus";
+    char publishTopic[topicSensorValue.length() + 1];
+    strcpy(publishTopic, topicSensorValue.c_str());
+
+    String messageSensorValue = String(1);
+    char publishMsg[messageSensorValue.length() + 1];
+    strcpy(publishMsg, messageSensorValue.c_str());
+
+    if(mqttClient.publish(publishTopic,publishMsg)){
+        Serial.println("Topic: " + String(publishTopic));
+        Serial.println("Message: " + String(publishMsg));
+    }else{
+        Serial.println("Publish Failed!");
+    }
+}
+
+void pubMqttCamIpMsg() {
+
+    String topicSensorValue = "cameraLink";
+    char publishTopic[topicSensorValue.length() + 1];
+    strcpy(publishTopic, topicSensorValue.c_str());
+
+    String messageSensorValue = WiFi.localIP().toString();
+    char publishMsg[messageSensorValue.length() + 1];
+    strcpy(publishMsg, messageSensorValue.c_str());
+
+    if(mqttClient.publish(publishTopic,publishMsg)){
+        Serial.println("Topic: " + String(publishTopic));
+        Serial.println("Message: " + String(publishMsg));
+    }else{
+        Serial.println("Publish Failed!");
+    }
+}
+
+void startCameraServer();
+
+void receiveCallback(char* topic, byte* payload, unsigned int length) {
+    Serial.print("Message Received [");
+    Serial.print(topic);
+    Serial.print("]");
+
+    for (int i = 0; i < length; i++) {
+        Serial.println((char) payload[i]);
+    }
+
+    Serial.println("");
+    Serial.print("Message length(Bytes): ");
+    Serial.println(length);
+
+    if ((char) payload[0] == 1) {
+        Serial.println("Start camera server");
+        startCameraServer();
+
+        Serial.print("Camera Ready! Use 'http://");
+        Serial.print(WiFi.localIP());
+        Serial.println("' to connect");
+
+        pubMqttCamIpMsg();
+        pubMqttCamStatus();
+    }
+}
+
+void subscribeTopic() {
+    String topicString = "camerTrigger"; // topic name
+    char subTopic[topicString.length() + 1];
+    strcpy(subTopic,topicString.c_str());
+
+    if(mqttClient.subscribe(subTopic)){  // subscribe the topic
+        Serial.println("Subscrib Topic: ");
+        Serial.println(subTopic);
+    }else{
+        Serial.println("Sbuscribe Fail..");
+    }
+}
+
+void connectMQTTServer() {
+
+    if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
+        Serial.println("MQTT Service connected!");
+        Serial.println("Server address: ");
+        Serial.println(mqttService);
+        subscribeTopic(); // subscribe the topic which this method have.
+    }else{
+        Serial.println("MQTT server connect fail.. ");
+        Serial.println("Client state: ");
+        Serial.println(mqttClient.state());
+        delay(3000);
+    }
+}
 
 void wifiConnect(){
     WiFi.mode(WIFI_STA);
@@ -130,80 +221,6 @@ void cameraInitProcess() {
 
 }
 
-void subscribeTopic() {
-    String topicString = "esp32SensorTrigger";
-    char subTopic[topicString.length() + 1];
-    strcpy(subTopic,topicString.c_str());
-
-    if(mqttClient.subscribe(subTopic)){
-        Serial.println("Subscrib Topic: ");
-        Serial.println(subTopic);
-    }else{
-        Serial.println("Sbuscribe Fail..");
-    }
-
-
-}
-
-void connectMQTTServer() {
-
-    if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
-        Serial.println("MQTT Service connected!");
-        Serial.println("Server address: ");
-        Serial.println(mqttService);
-        subscribeTopic();
-    }else{
-        Serial.println("MQTT server connect fail.. ");
-        Serial.println("Client state: ");
-        Serial.println(mqttClient.state());
-        delay(3000);
-    }
-}
-
-void startCameraServer();
-
-
-void pubMqttCamIpMsg() {
-
-    String topicSensorValue = "esp32CamLink";
-    char publishTopic[topicSensorValue.length() + 1];
-    strcpy(publishTopic, topicSensorValue.c_str());
-
-    String messageSensorValue = "cam: " + WiFi.localIP();
-    char publishMsg[messageSensorValue.length() + 1];
-    strcpy(publishMsg, messageSensorValue.c_str());
-
-    if(mqttClient.publish(publishTopic,publishMsg)){
-        Serial.println("Topic: " + String(publishTopic));
-        Serial.println("Message: " + String(publishMsg));
-    }else{
-        Serial.println("Publish Failed!");
-    }
-}
-
-
-void receiveCallback(char* topic, byte* payload, unsigned int length) {
-    Serial.print("Message Received [");
-    Serial.print(topic);
-    Serial.print("]");
-
-    for (int i = 0; i < length; i++) {
-        Serial.println((char) payload[i]);
-    }
-    Serial.println("");
-    Serial.print("Message length(Bytes): ");
-    Serial.println(length);
-
-    if((char) payload[0] == 1){
-        Serial.println("Start camera server");
-        startCameraServer();
-
-        Serial.print("Camera Ready! Use 'http://");
-        Serial.print(WiFi.localIP());
-        Serial.println("' to connect");
-    }
-}
-
 void setup() {
     Serial.begin(115200);
     Serial.setDebugOutput(true);
@@ -211,26 +228,17 @@ void setup() {
     cameraInitProcess();
     wifiConnect();
 
-
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println("Start camera service .. ");
 
-        mqttClient.setServer(mqttService,1883);
-        mqttClient.setCallback(receiveCallback);
-        connectMQTTServer();
-
-        if(mqttClient.connected()){
-            pubMqttCamIpMsg();
-        }else{
-            connectMQTTServer();
-        }
-    } else {
+        mqttClient.setServer(mqttService, 1883); //set the mqtt service to connect
+        mqttClient.setCallback(receiveCallback); //set the callback method to keep running the method witch can receive mqtt message.
+        connectMQTTServer(); //connect to the mqtt server
+    }else {
         Serial.println("Waiting for WiFi .. ");
     }
 
-    Blynk.begin(BLYNK_AUTH_TOKEN,ssid,pass);
-
-
+    Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
 }
 
 void loop() {
