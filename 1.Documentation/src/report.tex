@@ -4,7 +4,7 @@
 
 
 % Preamble
-\documentclass[12pt]{report}        % here is the document's type which is {article}.
+\documentclass[12pt]{article}        % here is the document's type which is {article}.
 \title{Making a new tomorrow in cyber stalking and e worms}                                   % the title of this document.
 \author{Henrik Agerholm Ferrari, Þorvaldur Máni Danivalsson, Fei Gu}
 \date{\today}
@@ -13,42 +13,98 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{blindtext}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
 
 
 % Document
 \begin{document}        % the ducument start here
+
     \maketitle
     \tableofcontents
 
     \pagebreak
-
     \section{Problem statement}\label{sec:problem-statement}
     % Which problem for a human is it solving and why is it important
-    \blindtext{}
+    We want to make a product that can help with the outrageous prices that the security companies charge every
+    month for small businesses or private individuals.
+    We would be able to make something with Internet of Things,that can trigger sensors and give us some feedback
+    to see, if there are any suspicious behaviors going on a certain parameter.
 
+    To fulfill this, we need to:
+    \begin{itemize}
 
-    \pagebreak
+        \item Get the modules we need that can be used for the user to easily get access to.
+
+        \item Connect the modules to an ESP32 device, so we can control it over the internet.
+
+        \item Make a program that involves modules that can receive and send feedback.
+
+        \item Set up a database for images to show to the user.
+
+    \end{itemize}
 
     \section{Illustration of network architecture}\label{sec:illustration-of-network-architecture}
     % Use draw.io make a architecture, remember to name the protocols and the hardwares.
+    \subsection{Modules}\label{subsec:modules}
 
-    \begin{figure}
+    We decided to use the following modules:
+
+    \begin{itemize}
+        \item ESP32-Firebettle * 2
+        \item ESP32-Cam
+        \item Sound Sensor
+        \item PIR Sensor
+        \item Buzzer
+    \end{itemize}
+
+    \subsection{net work architecture}\label{subsec:net-work-architecture}
+
+    \begin{figure}[h]
         \centering
         \includegraphics[width=0.5\textwidth]{CircuitLayOut/img}
         \caption{net work architecture}
-        \label{fig:}
+        \label{fig:figure1}
     \end{figure}
+
     \paragraph{}
-    Following the problem statement, we have to design the architecture base on three different terminal using three ESP32 MCU.
+    Following the problem statement, we have to design the architecture base on three different terminal using three ESP32 MCU\@.
 
 
     \paragraph{}
     The first terminal which connect to the all sensor component will try to get the data.
     And then when the data value reach to a limit then send a message to MQTT server by Wi-Fi connection, at the
-    same time send the data to "Blynk.console" to show the data.
+    same time send the data to ``Blynk.console´´ to show the data.
 
 
-    \paragrapg{}
+    \paragraph{}
     The MQTT server will subscribe the topic
 
     \blindtext{}
@@ -62,6 +118,7 @@
     \blindtext{}
 
 
+    \pagebreak
     \subsection{esp32No1 Sensor}\label{subsec:esp32no1-sensor}
     \paragraph{}
     This is the part ESP32 to connect to the sensors.
@@ -78,6 +135,7 @@
     \end{figure}
 
 
+    \pagebreak
     \subsection{esp32No2 Buzzer}\label{subsec:esp32no2-buzzer}
     \paragraph{}
     This part is talking about the ESP32 connect to the buzzer.
@@ -94,14 +152,13 @@
         \includegraphics[width=0.5\textwidth]{../out/ESP32_No.2_connect_Buzzer}
     \end{figure}
 
-    \subsection{esp32Cam }\label{subsec:esp32cam}
+    \pagebreak
+    \subsection{esp32Cam}\label{subsec:esp32cam}
     \paragraph{}
     This part is the connection about the Esp32 Camera can be flash under the develop mode.
     And when we leave the development mode then just unplug all the wires except the power and ground.
 
     \blindtext{}
-
-
 
     \begin{figure}[h]
         \caption{ESP32 CAM}\label{fig:figure4}
@@ -109,9 +166,30 @@
         \includegraphics[width=0.5\textwidth]{../out/ESP32Cam_connect_TypeCAdapter}
     \end{figure}
 
+    \pagebreak
+    \section{Conclusion}\label{sec:conclusion}
 
+    We ended up with a rough prototype that can be used for a security system.
+    We really wanted to show live feed from the ESP32-Camera, but all services that could help us with this costs money to use.
+    That is why we used Blynk for some feedback from some modules because we thought that the cam service was free,
+    but unfortunately it was not.
+    It was just a nice and easy way for the user to get notified if something
+    was in motion on their mobile phone.
 
-    \bibliography{report}
-    \bibliographystyle{plain}
+    \pagebreak
+    \appendix
+
+    \section{ESP32-Sensor Code}
+    \lstinputlisting[language=C++]{../../3.ArduinoProject/examProject_ESP32_No1_Sensor/src/main.cpp}
+    \pagebreak
+
+    \section{ESP32-Buzzer Code}
+    \lstinputlisting[language=C++]{../../3.ArduinoProject/examProject_ESP32_No2_buzzer/src/main.cpp}
+    \pagebreak
+
+    \section{ESP32-Cam Code}
+    \lstinputlisting[language=C++]{../../3.ArduinoProject/esamProject_ESP32_CAM/src/main.cpp}
+    \pagebreak
+
 
 \end{document}
