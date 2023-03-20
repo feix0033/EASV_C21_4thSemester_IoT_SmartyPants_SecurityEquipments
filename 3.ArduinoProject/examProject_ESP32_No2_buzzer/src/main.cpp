@@ -27,6 +27,10 @@ PubSubClient mqttClient(wifiClient);
 BlynkTimer timer;
 int timerID;
 
+void stopBuzzerTone(){
+
+}
+
 void buzzerTone(){
     for (int i = 200; i <= 800; i++) {
         tone(BUZZERPIN,i);
@@ -130,7 +134,7 @@ BLYNK_WRITE(V1){
     Serial.println(value);
 
     if(value == 0){
-        tune(BUZZERPIN,0);
+        tone(BUZZERPIN,0);
         trigger = 0;
         pubMqttBuzzerStatueMsg();
     }

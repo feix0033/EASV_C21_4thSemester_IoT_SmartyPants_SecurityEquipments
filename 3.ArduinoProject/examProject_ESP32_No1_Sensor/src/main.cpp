@@ -105,8 +105,7 @@ void sendSensor(){
 }
 
 void connectMQTTServer() {
-//    String clientId = "esp32-Sensor-" + WiFi.macAddress();
-    if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
+    if(mqttClient.connect("ggg", "ibSS5uuhGY1D19pC4twZClvYWmCW0978aPP4979DV04MZkdSBzF3K0Puafh0ecZc","")){
         Serial.println("MQTT Service connected!");
         Serial.println("Server address: ");
         Serial.println(mqttService);

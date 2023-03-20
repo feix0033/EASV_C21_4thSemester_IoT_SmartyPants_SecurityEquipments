@@ -60,12 +60,11 @@ const char* ssid = "Evensnachi";
 const char* pass = "12345678";
 const char* mqttService = "mqtt.flespi.io";
 
+
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 
 BlynkTimer timer;
-int v3Value;
-int takeNewPhoto = 0;
 bool taskCompleted = false;
 
 //Define Firebase Data objects
@@ -119,13 +118,15 @@ void capturePhotoSaveSpiffs( void ) {
 
 void pubMqttCamStatus(){
 
-    String topicSensorValue = "cameraStatus";
-    char publishTopic[topicSensorValue.length() + 1];
-    strcpy(publishTopic, topicSensorValue.c_str());
+    Serial.println("start publish cam status....");
 
-    String messageSensorValue = String(1);
-    char publishMsg[messageSensorValue.length() + 1];
-    strcpy(publishMsg, messageSensorValue.c_str());
+    String topicStatusValue = "cameraStatus";
+    char publishTopic[topicStatusValue.length() + 1];
+    strcpy(publishTopic, topicStatusValue.c_str());
+
+    String messageStatusValue = "1";
+    char publishMsg[messageStatusValue.length() + 1];
+    strcpy(publishMsg, messageStatusValue.c_str());
 
     if(mqttClient.publish(publishTopic,publishMsg)){
         Serial.println("Topic: " + String(publishTopic));
@@ -137,13 +138,14 @@ void pubMqttCamStatus(){
 
 void pubMqttCamIpMsg() {
 
-    String topicSensorValue = "cameraLink";
-    char publishTopic[topicSensorValue.length() + 1];
-    strcpy(publishTopic, topicSensorValue.c_str());
+    Serial.println("start publish cam ip....");
+    String topicLinkValue = "cameraLink";
+    char publishTopic[topicLinkValue.length() + 1];
+    strcpy(publishTopic, topicLinkValue.c_str());
 
-    String messageSensorValue = WiFi.localIP().toString();
-    char publishMsg[messageSensorValue.length() + 1];
-    strcpy(publishMsg, messageSensorValue.c_str());
+    String messageLinkValue = String(WiFi.localIP());
+    char publishMsg[messageLinkValue.length() + 1];
+    strcpy(publishMsg, messageLinkValue.c_str());
 
     if(mqttClient.publish(publishTopic,publishMsg)){
         Serial.println("Topic: " + String(publishTopic));
@@ -158,7 +160,7 @@ void startCameraServer();
 void receiveCallback(char* topic, byte* payload, unsigned int length) {
     Serial.print("Message Received [");
     Serial.print(topic);
-    Serial.print("]");
+    Serial.print("] : ");
 
     for (int i = 0; i < length; i++) {
         Serial.println((char) payload[i]);
@@ -168,26 +170,14 @@ void receiveCallback(char* topic, byte* payload, unsigned int length) {
     Serial.print("Message length(Bytes): ");
     Serial.println(length);
 
-    if ((char) payload[0] == 1) {
-        Serial.println("Start camera server");
-        startCameraServer();
+    if ((char) payload[0] == '1') {
 
-        Serial.print("Camera Ready! Use 'http://");
-        Serial.print(WiFi.localIP());
-        Serial.println("' to connect");
+        Serial.println(" make a pic .. ");
 
         Blynk.virtualWrite(V2,1);
         Blynk.virtualWrite(V5,WiFi.localIP().toString());
 
-        pubMqttCamIpMsg();
-        pubMqttCamStatus();
-
-        if (takeNewPhoto) {
-            capturePhotoSaveSpiffs();
-            takeNewPhoto = 0;
-            Blynk.virtualWrite(V6,takeNewPhoto);
-        }
-
+        capturePhotoSaveSpiffs();
         delay(1);
 
         if (Firebase.ready() && !taskCompleted){
@@ -207,8 +197,8 @@ void receiveCallback(char* topic, byte* payload, unsigned int length) {
 
 }
 
-void subscribeTopic() {
-    String topicString = "camerTrigger"; // topic name
+void subscribeCameraTopic() {
+    String topicString = "cameraTrigger"; // topic name
     char subTopic[topicString.length() + 1];
     strcpy(subTopic,topicString.c_str());
 
@@ -222,11 +212,11 @@ void subscribeTopic() {
 
 void connectMQTTServer() {
 
-    if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
+    if(mqttClient.connect("fff", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
         Serial.println("MQTT Service connected!");
         Serial.println("Server address: ");
         Serial.println(mqttService);
-        subscribeTopic(); // subscribe the topic which this method have.
+        subscribeCameraTopic(); // subscribe the topic which this method have.
     }else{
         Serial.println("MQTT server connect fail.. ");
         Serial.println("Client state: ");
@@ -236,10 +226,10 @@ void connectMQTTServer() {
 }
 
 void wifiConnect(){
+    Serial.println("Start to connect to wifi ..");
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, pass);
     WiFi.setSleep(false);
-    Serial.println("Start to connect to wifi ..");
 
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -251,6 +241,7 @@ void wifiConnect(){
 }
 
 void initSPIFFS(){
+    Serial.println("start init spiffs");
     if (!SPIFFS.begin(true)) {
         Serial.println("An Error has occurred while mounting SPIFFS");
         ESP.restart();
@@ -262,6 +253,8 @@ void initSPIFFS(){
 }
 
 void cameraInitProcess() {
+    Serial.println("start init camera");
+
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;
     config.ledc_timer = LEDC_TIMER_0;
@@ -285,118 +278,130 @@ void cameraInitProcess() {
     config.frame_size = FRAMESIZE_UXGA;
     config.pixel_format = PIXFORMAT_JPEG; // for streaming
     //config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
-//    config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
-//    config.fb_location = CAMERA_FB_IN_PSRAM;
-//    config.jpeg_quality = 12;
-//    config.fb_count = 1;
+    config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
+    config.fb_location = CAMERA_FB_IN_PSRAM;
+    config.jpeg_quality = 12;
+    config.fb_count = 1;
 
-//    // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
-//    //                      for larger pre-allocated frame buffer.
-//    if(config.pixel_format == PIXFORMAT_JPEG){
-//        if(psramFound()){
-//            config.jpeg_quality = 10;
-//            config.fb_count = 2;
-//            config.grab_mode = CAMERA_GRAB_LATEST;
-//        } else {
-//            // Limit the frame size when PSRAM is not available
-//            config.frame_size = FRAMESIZE_SVGA;
-//            config.fb_location = CAMERA_FB_IN_DRAM;
-//        }
-//    } else {
-//        // Best option for face detection/recognition
-//        config.frame_size = FRAMESIZE_240X240;
-//#if CONFIG_IDF_TARGET_ESP32S3
-//        config.fb_count = 2;
-//#endif
-//    }
-//
-//#if defined(CAMERA_MODEL_ESP_EYE)
-//    pinMode(13, INPUT_PULLUP);
-//  pinMode(14, INPUT_PULLUP);
-//#endif
-//
-//    // camera init
-//    esp_err_t err = esp_camera_init(&config);
-//    if (err != ESP_OK) {
-//        Serial.printf("Camera init failed with error 0x%x", err);
-//        return;
-//    }
-//
-//    sensor_t * s = esp_camera_sensor_get();
-//    // initial sensors are flipped vertically and colors are a bit saturated
-//    if (s->id.PID == OV3660_PID) {
-//        s->set_vflip(s, 1); // flip it back
-//        s->set_brightness(s, 1); // up the brightness just a bit
-//        s->set_saturation(s, -2); // lower the saturation
-//    }
-//    // drop down frame size for higher initial frame rate
-//    if(config.pixel_format == PIXFORMAT_JPEG){
-//        s->set_framesize(s, FRAMESIZE_QVGA);
-//    }
-//
-//#if defined(CAMERA_MODEL_M5STACK_WIDE) || defined(CAMERA_MODEL_M5STACK_ESP32CAM)
-//    s->set_vflip(s, 1);
-//  s->set_hmirror(s, 1);
-//#endif
-//
-//#if defined(CAMERA_MODEL_ESP32S3_EYE)
-//    s->set_vflip(s, 1);
-//#endif
-    if (psramFound()) {
-        config.frame_size = FRAMESIZE_UXGA;
-        config.jpeg_quality = 10;
-        config.fb_count = 2;
+    // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
+    //                      for larger pre-allocated frame buffer.
+    if(config.pixel_format == PIXFORMAT_JPEG){
+        if(psramFound()){
+            config.jpeg_quality = 10;
+            config.fb_count = 2;
+            config.grab_mode = CAMERA_GRAB_LATEST;
+        } else {
+            // Limit the frame size when PSRAM is not available
+            config.frame_size = FRAMESIZE_SVGA;
+            config.fb_location = CAMERA_FB_IN_DRAM;
+        }
     } else {
-        config.frame_size = FRAMESIZE_SVGA;
-        config.jpeg_quality = 12;
-        config.fb_count = 1;
+        // Best option for face detection/recognition
+        config.frame_size = FRAMESIZE_240X240;
+#if CONFIG_IDF_TARGET_ESP32S3
+        config.fb_count = 2;
+#endif
     }
-    // Camera init
+
+#if defined(CAMERA_MODEL_ESP_EYE)
+    pinMode(13, INPUT_PULLUP);
+  pinMode(14, INPUT_PULLUP);
+#endif
+
+    // camera init
     esp_err_t err = esp_camera_init(&config);
     if (err != ESP_OK) {
         Serial.printf("Camera init failed with error 0x%x", err);
-        ESP.restart();
+        return;
     }
 
-}
+    sensor_t * s = esp_camera_sensor_get();
+    // initial sensors are flipped vertically and colors are a bit saturated
+    if (s->id.PID == OV3660_PID) {
+        s->set_vflip(s, 1); // flip it back
+        s->set_brightness(s, 1); // up the brightness just a bit
+        s->set_saturation(s, -2); // lower the saturation
+    }
+    // drop down frame size for higher initial frame rate
+    if(config.pixel_format == PIXFORMAT_JPEG){
+        s->set_framesize(s, FRAMESIZE_QVGA);
+    }
 
-BLYNK_WRITE(V6){
-    takeNewPhoto = param.asInt();
+#if defined(CAMERA_MODEL_M5STACK_WIDE) || defined(CAMERA_MODEL_M5STACK_ESP32CAM)
+    s->set_vflip(s, 1);
+  s->set_hmirror(s, 1);
+#endif
+
+#if defined(CAMERA_MODEL_ESP32S3_EYE)
+    s->set_vflip(s, 1);
+#endif
+
+
+//    if (psramFound()) {
+//        config.frame_size = FRAMESIZE_UXGA;
+//        config.jpeg_quality = 10;
+//        config.fb_count = 2;
+//    } else {
+//        config.frame_size = FRAMESIZE_SVGA;
+//        config.jpeg_quality = 12;
+//        config.fb_count = 1;
+//    }
+//    // Camera init
+//    esp_err_t err = esp_camera_init(&config);
+//    if (err != ESP_OK) {
+//        Serial.printf("Camera init failed with error 0x%x", err);
+//        ESP.restart();
+//    }
+//
+//    Serial.println("camera init done...");
+
 }
 
 void setup() {
     Serial.begin(115200);
-    Serial.setDebugOutput(true);
 
     initSPIFFS();
+
     WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
     cameraInitProcess();
+
     wifiConnect();
 
-    if (WiFi.status() == WL_CONNECTED) {
-        Serial.println("Start camera service .. ");
+    Serial.println("Start camera server....");
+    startCameraServer();
 
-        mqttClient.setServer(mqttService, 1883); //set the mqtt service to connect
-        mqttClient.setCallback(receiveCallback); //set the callback method to keep running the method witch can receive mqtt message.
-        connectMQTTServer(); //connect to the mqtt server
+    Serial.print("Camera Ready! Use 'http://");
+    Serial.print(WiFi.localIP());
+    Serial.println("' to connect");
 
-        //Firebase
-        // Assign the api key
-        configF.api_key = API_KEY;
-        //Assign the user sign in credentials
-        auth.user.email = USER_EMAIL;
-        auth.user.password = USER_PASSWORD;
-        //Assign the callback function for the long running token generation task
-        configF.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
+    Serial.println("Start connect mqtt broker.....");
+    mqttClient.setServer(mqttService, 1883); //set the mqtt service to connect
+    mqttClient.setCallback(receiveCallback); //set the callback method to keep running the method witch can receive mqtt message.
+    connectMQTTServer(); //connect to the mqtt server
 
-        Firebase.begin(&configF, &auth);
-        Firebase.reconnectWiFi(true);
+    delay(3000);
 
-    }else {
-        Serial.println("Waiting for WiFi .. ");
-    }
+    pubMqttCamIpMsg();
+    pubMqttCamStatus();
 
+    Serial.println("start connect to blynk...");
     Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+    Serial.println("blynk connected.");
+
+    Serial.println("start connect to firebase.....");
+    //Firebase
+    // Assign the api key
+    configF.api_key = API_KEY;
+    //Assign the user sign in credentials
+    auth.user.email = USER_EMAIL;
+    auth.user.password = USER_PASSWORD;
+    //Assign the callback function for the long running token generation task
+    configF.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
+
+    Firebase.begin(&configF, &auth);
+//    Firebase.reconnectWiFi(true);
+    Serial.println("firebase connected.");
+
 }
 
 void loop() {
