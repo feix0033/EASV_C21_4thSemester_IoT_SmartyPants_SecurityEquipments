@@ -1,10 +1,12 @@
 %! Author: Henrik Agerholm Ferrari, Þorvaldur Máni Danivalsson, Fei Gu
 % This is the EASV CS21 4th Semester IOT Exam project report.
 % Group name is
+%!TEX encoding = UTF-8 Unicode
+
 
 
 % Preamble
-\documentclass[12pt]{article}        % here is the document's type which is {article}.
+\documentclass[a4paper, 12pt]{article}        % here is the document's type which is {article}.
 \title{Making a new tomorrow in cyber stalking and e worms}                                   % the title of this document.
 \author{Henrik Agerholm Ferrari, Þorvaldur Máni Danivalsson, Fei Gu}
 \date{\today}
@@ -53,12 +55,18 @@
     \pagebreak
     \section{Problem statement}\label{sec:problem-statement}
     % Which problem for a human is it solving and why is it important
+
+    \paragraph{}
     We want to make a product that can help with the outrageous prices that the security companies charge every
     month for small businesses or private individuals.
+
+    \paragraph{}
     We would be able to make something with Internet of Things,that can trigger sensors and give us some feedback
     to see, if there are any suspicious behaviors going on a certain parameter.
 
+    \paragraph{}
     To fulfill this, we need to:
+
     \begin{itemize}
 
         \item Get the modules we need that can be used for the user to easily get access to.
@@ -85,7 +93,7 @@
         \item Buzzer
     \end{itemize}
 
-    \subsection{net work architecture}\label{subsec:net-work-architecture}
+    \subsection{Net work architecture}\label{subsec:net-work-architecture}
 
     \begin{figure}[h]
         \centering
@@ -95,20 +103,18 @@
     \end{figure}
 
     \paragraph{}
-    Following the problem statement, we have to design the architecture base on three different terminal using three ESP32 MCU\@.
-
+    Following the problem statement, we have to design the architecture base on three different device using three ESP32 MCU\@.
+    And make sure all those device can communicate to each other to transport the data.
+    And we should have a front-end mobile application to control the device and get to view the data.
+    Afterward, we need a storage to contain the footage of the camera shoot.
 
     \paragraph{}
-    The first terminal which connect to the all sensor component will try to get the data.
-    And then when the data value reach to a limit then send a message to MQTT server by Wi-Fi connection, at the
-    same time send the data to ``Blynk.console´´ to show the data.
-
+    Because the real situation which is the most app on the mobile device to be use fully function should be paid.
+    And this is an academic porject that we should not to pay. So we decide to use the free version of Blynk as the
+    mobile app UI. And in case we need use firebase web app to show the footage.
 
     \paragraph{}
     The MQTT server will subscribe the topic
-
-    \blindtext{}
-
     \pagebreak
     \section{Illustration of the hardware setup}\label{sec:illustration-of-the-hardware-setup}
     % Use fritzing or just use circuiTikZ make the circuit layout\pm
@@ -169,10 +175,15 @@
     \pagebreak
     \section{Conclusion}\label{sec:conclusion}
 
+    \paragraph{}
     We ended up with a rough prototype that can be used for a security system.
+
+    \paragraph{}
     We really wanted to show live feed from the ESP32-Camera, but all services that could help us with this costs money to use.
     That is why we used Blynk for some feedback from some modules because we thought that the cam service was free,
     but unfortunately it was not.
+
+    \paragragh{}
     It was just a nice and easy way for the user to get notified if something
     was in motion on their mobile phone.
 
@@ -190,6 +201,7 @@
     \section{ESP32-Cam Code}
     \lstinputlisting[language=C++]{../../3.ArduinoProject/esamProject_ESP32_CAM/src/main.cpp}
     \pagebreak
+
 
 
 \end{document}
