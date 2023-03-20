@@ -13,6 +13,7 @@
 #include "../.pio/libdeps/esp32cam/Blynk/src/BlynkSimpleEsp32.h"
 #include "../.pio/libdeps/esp32cam/Blynk/src/Blynk/BlynkHandlers.h"
 #include "../.pio/libdeps/esp32cam/PubSubClient/src/PubSubClient.h"
+#include "../.pio/libdeps/esp32cam/Time/TimeLib.h"
 
 #define CAMERA_MODEL_AI_THINKER // Has PSRAM
 #include "camera_pins.h"
@@ -52,14 +53,15 @@
 // Insert Firebase storage bucket ID e.g bucket-name.appspot.com
 #define STORAGE_BUCKET_ID "esp32-smartpants.appspot.com"
 
-// Photo File Name to save in SPIFFS
-#define FILE_PHOTO "/data/photo.jpg"
+
 
 // Wi-Fi ssid and password
 const char* ssid = "Evensnachi";
 const char* pass = "12345678";
 const char* mqttService = "mqtt.flespi.io";
 
+// Photo File Name to save in SPIFFS
+String file_photo;
 
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
@@ -74,7 +76,7 @@ FirebaseConfig configF;
 
 // Check if photo capture was successful
 bool checkPhoto(fs::FS&fs){
-    File f_pic = fs.open(FILE_PHOTO);
+    File f_pic = fs.open(file_photo);
     unsigned int pic_sz = f_pic.size();
     return ( pic_sz > 100 );
 }
@@ -93,8 +95,8 @@ void capturePhotoSaveSpiffs( void ) {
             return;
         }
         // Photo file name
-        Serial.printf("Picture file name: %s\n", FILE_PHOTO);
-        File file = SPIFFS.open(FILE_PHOTO, FILE_WRITE);
+        Serial.printf("Picture file name: %s\n", file_photo.c_str());
+        File file = SPIFFS.open(file_photo, FILE_WRITE);
         // Insert the data in the photo file
         if (!file) {
             Serial.println("Failed to open file in writing mode");
@@ -102,7 +104,7 @@ void capturePhotoSaveSpiffs( void ) {
         else {
             file.write(fb->buf, fb->len); // payload (image), payload length
             Serial.print("The picture has been saved in ");
-            Serial.print(FILE_PHOTO);
+            Serial.print(file_photo);
             Serial.print(" - Size: ");
             Serial.print(file.size());
             Serial.println(" bytes");
@@ -177,16 +179,26 @@ void receiveCallback(char* topic, byte* payload, unsigned int length) {
         Blynk.virtualWrite(V2,1);
         Blynk.virtualWrite(V5,WiFi.localIP().toString());
 
+        time_t t = now();
+        setTime(t);
+        file_photo = ("/" + String(day(t)) + "/" + String(hour(t)) + "-" + minute(t) + "-" + second(t) + ".jpg");
         capturePhotoSaveSpiffs();
-        delay(1);
+        delay(1000);
 
         if (Firebase.ready() && !taskCompleted){
-            taskCompleted = true;
             Serial.print("Uploading picture... ");
 
             //MIME type should be valid to avoid the download problem.
             //The file systems for flash and SD/SDMMC can be changed in FirebaseFS.h.
-            if (Firebase.Storage.upload(&fbdo, STORAGE_BUCKET_ID /* Firebase Storage bucket id */, FILE_PHOTO /* path to local file */, mem_storage_type_flash /* memory storage type, mem_storage_type_flash and mem_storage_type_sd */, FILE_PHOTO /* path of remote file stored in the bucket */, "image/jpeg" /* mime type */)){
+            if (Firebase.Storage.upload(&fbdo, STORAGE_BUCKET_ID /* Firebase Storage bucket id */, file_photo /* path to local file */, mem_storage_type_flash /* memory storage type, mem_storage_type_flash and mem_storage_type_sd */, file_photo /* path of remote file stored in the bucket */, "image/jpeg" /* mime type */)){
+                Serial.println("upload storage");
+                Serial.printf("\nDownload URL: %s\n", fbdo.downloadURL().c_str());
+            } else {
+                Serial.println(fbdo.errorReason());
+            }
+
+            if (Firebase.Storage.upload(&fbdo, STORAGE_BUCKET_ID /* Firebase Storage bucket id */, file_photo /* path to local file */, mem_storage_type_flash /* memory storage type, mem_storage_type_flash and mem_storage_type_sd */, "/data/photo.jpg" /* path of remote file stored in the bucket */, "image/jpeg" /* mime type */)){
+                Serial.println("upload pic to show");
                 Serial.printf("\nDownload URL: %s\n", fbdo.downloadURL().c_str());
             } else {
                 Serial.println(fbdo.errorReason());
