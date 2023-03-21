@@ -22,6 +22,8 @@ uint16_t soundValue = 0;
 const char* ssid = "Evensnachi";
 const char* pass = "12345678";
 const char* mqttService = "mqtt.flespi.io";
+const char* host = "maker.ifttt.com";
+const char* apiKey = "c3th-_yog0xgoqzfaHnomU";
 
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
@@ -31,6 +33,7 @@ int timerID;
 
 int cameraTrigger = 0;
 int buzzerTrigger = 0;
+boolean emailTrigger = false;
 
 void pubMqttBuzzerTriggerMsg(){
     String topicSensorValue = "buzzerTrigger";
@@ -84,6 +87,30 @@ void pubMqttSensorValueMsg() {
     }
 }
 
+void emailService(){
+    Serial.print("connecting to ");
+    Serial.println(host);
+
+    const int httpPort = 80;
+
+
+    if (!wifiClient.connect(host, httpPort)) {
+        Serial.println("connection failed");
+        return;
+    }
+
+    String url = "trigger/sensor_has_been_triggered/with/key/";
+    url += apiKey;
+
+    Serial.print("Requesting URL: ");
+    Serial.println(url);
+    wifiClient.print(String("POST ") + url + " HTTP/1.1\r\n" +
+                     "Host: " + host + "\r\n" +
+                     "Content-Type: application/x-www-form-urlencoded\r\n" +
+                     "Content-Length: 13\r\n\r\n" +
+                     "value1=" + "1" + "\r\n");
+}
+
 void sendSensor(){
     pirValue = digitalRead(PIRPIN);
     soundValue = analogRead(SOUNDPIN);
@@ -93,16 +120,19 @@ void sendSensor(){
     Blynk.virtualWrite(V3,soundValue);
     Blynk.virtualWrite(V4,pirValue);
 
-    if(mqttClient.connected()){
+    if(mqttClient.connected()) {
         pubMqttSensorValueMsg();
-        if(soundValue >= 2000 || pirValue == 1){
+        if (soundValue >= 2000 || pirValue == 1) {
             buzzerTrigger = 1;
             cameraTrigger = 1;
             pubMqttCameraTriggerMsg();
             pubMqttBuzzerTriggerMsg();
+            emailTrigger = true;
         }
     }
 }
+
+
 
 void connectMQTTServer() {
     if(mqttClient.connect("ggg", "ibSS5uuhGY1D19pC4twZClvYWmCW0978aPP4979DV04MZkdSBzF3K0Puafh0ecZc","")){
@@ -147,7 +177,6 @@ BLYNK_WRITE(V0){
     }
 };
 
-
 void setup() {
     Serial.begin(115200);
 
@@ -170,6 +199,12 @@ void loop() {
     }else{
         connectMQTTServer();
     }
+
+    if(emailTrigger){
+        emailService();
+        emailTrigger=false;
+    }
+
 
     Blynk.run();
     timer.run();
