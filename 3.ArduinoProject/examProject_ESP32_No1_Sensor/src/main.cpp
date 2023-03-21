@@ -99,16 +99,14 @@ void emailService(){
         return;
     }
 
-    String url = "trigger/sensor_has_been_triggered/with/key/";
-    url += apiKey;
+    String url = "/trigger/sensor_has_been_triggered/with/key/c3th-_yog0xgoqzfaHnomU";
 
     Serial.print("Requesting URL: ");
     Serial.println(url);
     wifiClient.print(String("POST ") + url + " HTTP/1.1\r\n" +
                      "Host: " + host + "\r\n" +
                      "Content-Type: application/x-www-form-urlencoded\r\n" +
-                     "Content-Length: 13\r\n\r\n" +
-                     "value1=" + "1" + "\r\n");
+                     "Content-Length: 13\r\n\r\n");
 }
 
 void sendSensor(){
