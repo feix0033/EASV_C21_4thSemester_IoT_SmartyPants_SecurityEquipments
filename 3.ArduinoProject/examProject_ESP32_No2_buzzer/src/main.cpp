@@ -12,9 +12,9 @@
 
 #define BLYNK_PRINT SERIAL
 
-#define BUZZERPIN 12
+int buzzerPin = 16;
 
-int trigger = 0;
+boolean trigger = false;
 
 // Wi-Fi ssid and password
 const char* ssid = "Evensnachi";
@@ -27,19 +27,17 @@ PubSubClient mqttClient(wifiClient);
 BlynkTimer timer;
 int timerID;
 
-void stopBuzzerTone(){
-
-}
 
 void buzzerTone(){
-    for (int i = 200; i <= 800; i++) {
-        tone(BUZZERPIN,i);
-        delay(5);
-    }
-//    delay(4000);
-    for (int i = 800; i >=200; i--) {
-        tone(BUZZERPIN,i);
-        delay(10);
+    for (int i = 0; i < 3; ++i) {
+        tone(buzzerPin, 200); // should be 2000
+        delay(200);
+        noTone(buzzerPin);
+        delay(200);
+        tone(buzzerPin, 100); // should be 1000
+        delay(200);
+        noTone(buzzerPin);
+        delay(200);
     }
 }
 
@@ -74,19 +72,17 @@ void receiveCallback(char* topic, byte* payload, unsigned int length) {
     Serial.print("Message length(Bytes): ");
     Serial.println(length);
 
-    if((char) payload[0] == 1){
+    if((char) payload[0] == '1'){
+        Serial.println("start buzzer");
         buzzerTone();
-        trigger = 1;
         pubMqttBuzzerStatueMsg();
-        Blynk.virtualWrite(V1,1);
-    } else {
-        tone(BUZZERPIN,0);
-        trigger = 0;
+    } else if((char) payload[0] == '0'){
+        noTone(buzzerPin);
         pubMqttBuzzerStatueMsg();
     }
 }
 
-void subscribeTopic() {
+void subscribeBuzzerTopic() {
     String topicString = "buzzerTrigger"; // here insert the topic which you want to subscribed.
     char subTopic[topicString.length() + 1];
     strcpy(subTopic,topicString.c_str());
@@ -101,11 +97,11 @@ void subscribeTopic() {
 
 void connectMQTTServer() {
 //    String clientId = "esp32-Sensor-" + WiFi.macAddress();
-    if(mqttClient.connect("ggg", "uszYF0QvKzAJ5kSCZByNuCbKukAMVf4fxu12kIoS7Mq1U8tHxPkRhksAsQcdV4gg","")){
+    if(mqttClient.connect("eee", "r8Skuyyk0E3SEbARQJPNJ2eQZcGrDRGUQp48LqiBU9jnbH2RgHsPxvtmxYD0F8Kj","")){
         Serial.println("MQTT Service connected!");
         Serial.println("Server address: ");
         Serial.println(mqttService);
-        subscribeTopic(); // subscribe the topic which this method have.
+        subscribeBuzzerTopic(); // subscribe the topic which this method have.
     }else{
         Serial.println("MQTT server connect fail.. ");
         Serial.println("Client state: ");
@@ -129,34 +125,23 @@ void wifiConnect(){
     Serial.println(WiFi.localIP());
 }
 
-BLYNK_WRITE(V1){
-    int value = param.asInt();
-    Serial.println(value);
-
-    if(value == 0){
-        tone(BUZZERPIN,0);
-        trigger = 0;
-        pubMqttBuzzerStatueMsg();
-    }
-}
-
 void setup() {
     Serial.begin(115200);
-    Serial.setDebugOutput(true);
+    pinMode(buzzerPin, OUTPUT);
 
-    pinMode(BUZZERPIN, OUTPUT);
+    buzzerTone();
 
     wifiConnect();
 
-    if (WiFi.status() == WL_CONNECTED) {
-        mqttClient.setServer(mqttService,1883);
-        mqttClient.setCallback(receiveCallback);
-        connectMQTTServer();
-    } else {
-        Serial.println("Waiting for WiFi .. ");
-    }
-
     Blynk.begin(BLYNK_AUTH_TOKEN,ssid,pass);
+
+
+    mqttClient.setServer(mqttService,1883);
+    mqttClient.setCallback(receiveCallback);
+    connectMQTTServer();
+
+    delay(3000);
+    buzzerTone();
 
 }
 
