@@ -33,7 +33,7 @@ int timerID;
 
 int cameraTrigger = 0;
 int buzzerTrigger = 0;
-boolean emailTrigger = false;
+int emailTrigger = 3;
 
 void pubMqttBuzzerTriggerMsg(){
     String topicSensorValue = "buzzerTrigger";
@@ -125,7 +125,8 @@ void sendSensor(){
             cameraTrigger = 1;
             pubMqttCameraTriggerMsg();
             pubMqttBuzzerTriggerMsg();
-            emailTrigger = true;
+            emailTrigger++;
+            Serial.println("emailtrigger : " + String(emailTrigger));
         }
     }
 }
@@ -198,10 +199,11 @@ void loop() {
         connectMQTTServer();
     }
 
-    if(emailTrigger){
+    if(emailTrigger%4 == 0){
         emailService();
-        emailTrigger=false;
+        emailTrigger++;
     }
+
 
 
     Blynk.run();
